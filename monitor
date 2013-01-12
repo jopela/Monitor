@@ -1,8 +1,37 @@
 #!/usr/bin/python2
 
+import argparse
+
 def main():
     """Entry point for monitor"""
-    print "please implement monitor"
+
+    parser = argparse.ArgumentParser('Monitor your component for reliability and'\
+            ' uptime')
+
+
+    parser.add_argument(
+            '-c',
+            '--conf',
+            help='path to configuration file (default is'\
+                    ' /etc/monitor/monitor.confi)',
+            type=str,
+            default='/etc/monitor/monitor.conf',
+            )
+
+    parser.add_argument(
+            '-l',
+            '--log',
+            help='path to log file (default is'\
+                    ' /var/log/monitor/monitor.log)',
+            type=str,
+            default='/var/log/monitor/monitor.log',
+            )
+
+    args = parser.parse_args()
+
+    print 'monitor.conf',args.conf
+    print 'monitor.log',args.log
+
     return
 
 if __name__ == '__main__':
