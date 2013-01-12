@@ -1,0 +1,9 @@
+#!/usr/bin/python2
+
+def main():
+    """Entry point for loggen"""
+    print "please implement loggen"
+    return
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,9 @@
+#!/usr/bin/python2
+
+def main():
+    """Entry point for monitor"""
+    print "please implement monitor"
+    return
+
+if __name__ == '__main__':
+    main()
