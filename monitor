@@ -1,6 +1,10 @@
 #!/usr/bin/python2
 
 import argparse
+import yaml
+
+from time import time
+from subprocess import call
 
 def main():
     """Entry point for monitor"""
@@ -13,7 +17,7 @@ def main():
             '-c',
             '--conf',
             help='path to configuration file (default is'\
-                    ' /etc/monitor/monitor.confi)',
+                    ' /etc/monitor/monitor.conf)',
             type=str,
             default='/etc/monitor/monitor.conf',
             )
@@ -28,11 +32,29 @@ def main():
             )
 
     args = parser.parse_args()
+    conf_path = args.conf
+    log_path = args.log
 
-    print 'monitor.conf',args.conf
-    print 'monitor.log',args.log
+    conf = read_conf(conf_path)
+    probe_cmd = conf['probe']
+    ret_code = call(probe_cmd, shell=True)
+    current_time = int(time())
+
+    with open(log_path,'a+') as log_f:
+        log_f.write("{0}: {1}\n".format(current_time, ret_code))
 
     return
+
+def read_conf(conf_path):
+    """Reads the configuration file located at conf_path and returns a 
+    dictionary containing the config elements of the file."""
+
+    conf = None
+
+    with open(conf_path,'r') as f:
+        conf = yaml.load(f)
+    
+    return conf
 
 if __name__ == '__main__':
     main()
