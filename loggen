@@ -1,9 +1,61 @@
 #!/usr/bin/python2
 
+import argparse
+
+from time import ctime
+
 def main():
-    """Entry point for loggen"""
-    print "please implement loggen"
+    """Entry point for loggen."""
+
+    parser = argparse.ArgumentParser('Generate an html report from a component'\
+            ' monitor log file')
+
+    parser.add_argument(
+            '-l',
+            '--log',
+            help='log file path (default is: /var/log/monitor/monitor.log)',
+            type=str,
+            default='/var/log/monitor/monitor.log'
+            )
+
+    parser.add_argument(
+            '-t',
+            '--template',
+            help='report template file path (default is: /etc/monitor/monitor'\
+                    '.mako)',
+            type=str,
+            default='/etc/monitor/monitor.mako'
+            )
+
+    args = parser.parse_args()
+
+    start, last = get_acquisition_period(args.log)
+
+    print start
+    print last
+
     return
+
+def get_acquisition_period(log_path):
+    """Get the acquisition period (start date and last date) from the log file
+    and return a tuple of the form (start_date,last_date)."""
+
+    start_date = None
+    last_date = None
+
+    with open(log_path,'r') as log_f:
+        for i, val in enumerate(log_f):
+            if i == 0:
+                timestamp = int(val.split(':')[0])
+                start_date =  ctime(timestamp)
+
+            last = val
+
+        timestamp = int(last.split(':')[0])
+        last_date = ctime(timestamp)
+
+    return (start_date, last_date)
+
 
 if __name__ == '__main__':
     main()
