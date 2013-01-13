@@ -3,6 +3,7 @@
 import argparse
 
 from time import ctime
+from datetime import timedelta
 
 def main():
     """Entry point for loggen."""
@@ -31,10 +32,14 @@ def main():
 
     start, last = get_acquisition_period(args.log)
     uptime = get_uptime_percentage(args.log)
+    longest = get_longest_uptime(args.log)
+    longest_downtime = get_longest_downtime(args.log)
 
     print start
     print last
     print uptime
+    print longest
+    print longest_downtime
 
     return
 
@@ -66,8 +71,6 @@ def get_uptime_percentage(log_path):
     prev_timestamp = None
     current_timestamp = None
 
-    current_state = None
-
     first_timestamp = None
     last_timestamp = None
 
@@ -76,16 +79,14 @@ def get_uptime_percentage(log_path):
             if i == 0:
                 first_timestamp = int(val.split(':')[0])
                 prev_timestamp = first_timestamp
-                current_state = int(val.split(':')[1])
                 continue
 
             current_timestamp = int(val.split(':')[0])
             state = int(val.split(':')[1])
 
-            if current_state == 0 and state == 0:
+            if state == 0:
                 total_uptime += current_timestamp - prev_timestamp
 
-            current_state = state
             prev_timestamp = current_timestamp
 
         last_timestamp = current_timestamp
@@ -93,11 +94,69 @@ def get_uptime_percentage(log_path):
         total_time = last_timestamp - first_timestamp
         uptime = float(total_uptime) / float(total_time)
 
-        print total_time
-        print total_uptime
+    return uptime * 100
+
+def get_longest_uptime(log_path):
+    """Compute the longest uptime and returns it in a human readable form."""
+
+    max_uptime = 0
+    current_uptime = 0
+    previous_timestamp = 0
+
+    with open(log_path, 'r') as log_f:
+        for i, val in enumerate(log_f):
+            if i == 0:
+                previous_timestamp = int(val.split(':')[0])
+                continue
+
+            current_timestamp = int(val.split(':')[0])
+            state = int(val.split(':')[1])
+
+            if state == 0:
+                current_uptime += current_timestamp - previous_timestamp
+            else:
+                max_uptime = max(max_uptime, current_uptime)
+                current_uptime = 0
+
+            previous_timestamp = current_timestamp
+
+    max_uptime = max(current_uptime, max_uptime)
+
+    human_max_uptime = timedelta(seconds=max_uptime)
+
+    return human_max_uptime
+
+def get_longest_downtime(log_path):
+    """ Compute the longest downtime and returns it in a human readable form."""
+    max_uptime = 0
+    current_uptime = 0
+    previous_timestamp = 0
+
+    with open(log_path, 'r') as log_f:
+        for i, val in enumerate(log_f):
+            if i == 0:
+                previous_timestamp = int(val.split(':')[0])
+                continue
+
+            current_timestamp = int(val.split(':')[0])
+            state = int(val.split(':')[1])
+
+            if state != 0:
+                current_uptime += current_timestamp - previous_timestamp
+            else:
+                max_uptime = max(max_uptime, current_uptime)
+                current_uptime = 0
+
+            previous_timestamp = current_timestamp
+
+    max_uptime = max(current_uptime, max_uptime)
+
+    human_max_uptime = timedelta(seconds=max_uptime)
+
+    return human_max_uptime
 
 
-        return uptime * 100
+
 
 if __name__ == '__main__':
     main()
