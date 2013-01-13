@@ -30,9 +30,11 @@ def main():
     args = parser.parse_args()
 
     start, last = get_acquisition_period(args.log)
+    uptime = get_uptime_percentage(args.log)
 
     print start
     print last
+    print uptime
 
     return
 
@@ -56,6 +58,46 @@ def get_acquisition_period(log_path):
 
     return (start_date, last_date)
 
+def get_uptime_percentage(log_path):
+    """Compute the uptime percentage from the log file and return it."""
+
+    total_uptime = 0
+    total_time = 0
+    prev_timestamp = None
+    current_timestamp = None
+
+    current_state = None
+
+    first_timestamp = None
+    last_timestamp = None
+
+    with open(log_path, 'r') as log_f:
+        for i, val in enumerate(log_f):
+            if i == 0:
+                first_timestamp = int(val.split(':')[0])
+                prev_timestamp = first_timestamp
+                current_state = int(val.split(':')[1])
+                continue
+
+            current_timestamp = int(val.split(':')[0])
+            state = int(val.split(':')[1])
+
+            if current_state == 0 and state == 0:
+                total_uptime += current_timestamp - prev_timestamp
+
+            current_state = state
+            prev_timestamp = current_timestamp
+
+        last_timestamp = current_timestamp
+
+        total_time = last_timestamp - first_timestamp
+        uptime = float(total_uptime) / float(total_time)
+
+        print total_time
+        print total_uptime
+
+
+        return uptime * 100
 
 if __name__ == '__main__':
     main()
