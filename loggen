@@ -3,7 +3,6 @@
 import argparse
 
 from time import ctime
-from datetime import timedelta
 
 def main():
     """Entry point for loggen."""
@@ -28,6 +27,12 @@ def main():
             default='/etc/monitor/monitor.mako'
             )
 
+    args = parser.parse_args()
+    first, last = get_acquisition_period(args.log)
+
+    print 'first', first
+    print 'last', last
+
     return
 
 def get_acquisition_period(log_path):
@@ -49,6 +54,46 @@ def get_acquisition_period(log_path):
         last_date = ctime(timestamp)
 
     return (start_date, last_date)
+
+def get_state(log_entry):
+    """Retrieve the state integer from the entry of the log file passed as 
+    parameter."""
+
+    state = int(log_entry.split(':')[1])
+    return state
+
+def get_time(log_entry):
+    """Retrieve the time integer from the entry of the log file passed as 
+    parameter."""
+
+    time = int(log_entry.split(':')[0])
+    return time
+
+def get_uptime(log_path):
+    """Compute the uptime of the system from the dataset and return it.
+    Return unit is seconds."""
+
+    uptime = 0
+    state = None
+    delta_time = 60
+    p_time = None
+
+    with open(log_path,'r') as log_f:
+        for i, val in enumerate(log_f):
+            state = get_state(val)
+            time = get_time(val)
+
+            if state == 0:
+                if i == 0:
+                    uptime += delta_time
+                else:
+                    uptime += time - p_time
+            else:
+                pass
+
+            p_time = time
+
+    return uptime
 
 
 if __name__ == '__main__':
