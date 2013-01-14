@@ -33,6 +33,7 @@ def main():
     total_time = get_total_time(args.log)
     downtime = get_downtime(total_time, uptime)
     uptime_percentage = get_uptime_percentage(total_time, uptime)
+    nbr_failures = get_number_failures(args.log)
 
     print 'first: ', first
     print 'last: ', last
@@ -40,6 +41,7 @@ def main():
     print 'total_time: ',total_time
     print 'downtime: ', downtime
     print 'uptime_percentage: ', uptime_percentage
+    print 'nbr_failures: ', nbr_failures
 
     return
 
@@ -126,17 +128,50 @@ def get_total_time(log_path):
     return total_time
 
 def get_downtime(total_time, uptime):
-    """Compute the downtime and returns it. Return unit is seconds"""
+    """ Compute the downtime and returns it. Return unit is seconds."""
 
     downtime = total_time - uptime
     return downtime
 
 def get_uptime_percentage(total_time, uptime):
-    """Compute the uptime percentage and returns it. Return unit is seconds"""
+    """ Compute the uptime percentage and returns it. Return unit is seconds."""
 
     uptime_percentage = float(uptime) / float(total_time) * 100
     return int(uptime_percentage)
 
+def get_number_failures(log_path):
+    """ Compute the number of failures and return it."""
+
+    machine_state = 2
+    nbr_failures = 0
+
+    with open(log_path,'r') as log_f:
+        for val in log_f:
+            state = get_state(val)
+
+            if machine_state == 1:
+                if state == 0:
+                    machine_state = 2
+                else:
+                    pass
+            elif machine_state == 2:
+                if state == 0:
+                    pass
+                else:
+                    machine_state = 3
+            elif machine_state == 3:
+                nbr_failures += 1
+                if state == 0:
+                    machine_state = 2
+                else:
+                    machine_state = 1
+            else:
+                print "state transition is not allowed."
+
+        if machine_state == 3:
+            nbr_failures += 1
+
+    return nbr_failures
 
 if __name__ == '__main__':
     main()
