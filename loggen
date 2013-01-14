@@ -32,13 +32,14 @@ def main():
     uptime = get_uptime(args.log)
     total_time = get_total_time(args.log)
     downtime = get_downtime(total_time, uptime)
+    uptime_percentage = get_uptime_percentage(total_time, uptime)
 
     print 'first: ', first
     print 'last: ', last
     print 'uptime: ', uptime 
     print 'total_time: ',total_time
     print 'downtime: ', downtime
-
+    print 'uptime_percentage: ', uptime_percentage
 
     return
 
@@ -129,6 +130,13 @@ def get_downtime(total_time, uptime):
 
     downtime = total_time - uptime
     return downtime
+
+def get_uptime_percentage(total_time, uptime):
+    """Compute the uptime percentage and returns it. Return unit is seconds"""
+
+    uptime_percentage = float(uptime) / float(total_time) * 100
+    return int(uptime_percentage)
+
 
 if __name__ == '__main__':
     main()
