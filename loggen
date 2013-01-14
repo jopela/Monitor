@@ -29,9 +29,13 @@ def main():
 
     args = parser.parse_args()
     first, last = get_acquisition_period(args.log)
+    uptime = get_uptime(args.log)
+    total_time = get_total_time(args.log)
 
-    print 'first', first
-    print 'last', last
+    print 'first: ', first
+    print 'last: ', last
+    print 'uptime: ', uptime 
+    print 'total_time: ',total_time
 
     return
 
@@ -95,6 +99,27 @@ def get_uptime(log_path):
 
     return uptime
 
+def get_total_time(log_path):
+    """Compute the total time for wich the state of the system was probed and
+    return it. Return unit is seconds."""
+    
+    total_time = 0
+    d_time = 60
+    p_time = None
+
+    with open(log_path,'r') as log_f:
+        for i, val in enumerate(log_f):
+            time = get_time(val)
+
+            if i == 0:
+                total_time += d_time
+            else:
+                total_time += time - p_time
+
+            p_time = time
+
+
+    return total_time
 
 if __name__ == '__main__':
     main()
