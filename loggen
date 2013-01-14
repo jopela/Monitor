@@ -35,6 +35,7 @@ def main():
     uptime_percentage = get_uptime_percentage(total_time, uptime)
     nbr_failures = get_number_failures(args.log)
     avrg_failure_time = get_avrg_failure_time(downtime, nbr_failures)
+    avrg_failure_rate = get_avrg_failure_rate(total_time, nbr_failures)
 
     print 'first: ', first
     print 'last: ', last
@@ -44,6 +45,7 @@ def main():
     print 'uptime_percentage: ', uptime_percentage
     print 'nbr_failures: ', nbr_failures
     print 'avrg_failure_time: ', avrg_failure_time
+    print 'avrg_failure_rate: ', avrg_failure_rate
 
     return
 
@@ -176,10 +178,19 @@ def get_number_failures(log_path):
     return nbr_failures
 
 def get_avrg_failure_time(downtime,nbr_failures):
-    """Computes the average lenght of a failure"""
+    """Computes the average lenght of a failure."""
 
     avrg_failure_time = float(downtime) / float(nbr_failures)
     return int(avrg_failure_time)
+
+def get_avrg_failure_rate(total_time, nbr_failures):
+    """Computes the average failure rate and returns it. Result unit is
+    failure per hour."""
+
+    avrg_failure_per_seconds = float(nbr_failures) / float(total_time)
+    avrg_failure_rate = avrg_failure_per_seconds * 3600
+    return avrg_failure_rate
+
 
 if __name__ == '__main__':
     main()
