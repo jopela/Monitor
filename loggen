@@ -31,11 +31,14 @@ def main():
     first, last = get_acquisition_period(args.log)
     uptime = get_uptime(args.log)
     total_time = get_total_time(args.log)
+    downtime = get_downtime(total_time, uptime)
 
     print 'first: ', first
     print 'last: ', last
     print 'uptime: ', uptime 
     print 'total_time: ',total_time
+    print 'downtime: ', downtime
+
 
     return
 
@@ -120,6 +123,12 @@ def get_total_time(log_path):
 
 
     return total_time
+
+def get_downtime(total_time, uptime):
+    """Compute the downtime and returns it. Return unit is seconds"""
+
+    downtime = total_time - uptime
+    return downtime
 
 if __name__ == '__main__':
     main()
