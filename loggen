@@ -3,6 +3,7 @@
 import argparse
 
 from time import ctime
+from datetime import datetime
 
 def main():
     """Entry point for loggen."""
@@ -37,6 +38,8 @@ def main():
     avrg_failure_time = get_avrg_failure_time(downtime, nbr_failures)
     avrg_failure_rate = get_avrg_failure_rate(total_time, nbr_failures)
     failures_timestamps = get_failures_timestamp(args.log)
+    hours_failures = get_hours_failures(failures_timestamps)
+    days_failures = get_days_failures(failures_timestamps)
 
     print 'first: ', first
     print 'last: ', last
@@ -48,6 +51,8 @@ def main():
     print 'avrg_failure_time: ', avrg_failure_time
     print 'avrg_failure_rate: ', avrg_failure_rate
     print 'failures_timestamp: ', failures_timestamps
+    print 'hours_failures: ', hours_failures
+    print 'days_failures: ', days_failures
 
     return
 
@@ -177,6 +182,20 @@ def get_failures_timestamp(log_path):
 
 
     return failures_timestamp
+
+def get_hours_failures(timestamps):
+    """ Takes a list of timestamps when failures happened and return the
+    hour (0-24) during which it happened. """
+
+    hours = [datetime.fromtimestamp(i).hour for i in timestamps]
+    return hours
+
+def get_days_failures(timestamps):
+    """ Takes a list of timestamps when failures happened and return the
+    weekday (0-6, 0 == monday) during which it happened. """
+
+    days = [datetime.fromtimestamp(i).weekday() for i in timestamps]
+    return days
 
 def get_number_failures(log_path):
     """ Compute the number of failures and return it."""
