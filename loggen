@@ -36,6 +36,7 @@ def main():
     nbr_failures = get_number_failures(args.log)
     avrg_failure_time = get_avrg_failure_time(downtime, nbr_failures)
     avrg_failure_rate = get_avrg_failure_rate(total_time, nbr_failures)
+    failures_timestamps = get_failures_timestamp(args.log)
 
     print 'first: ', first
     print 'last: ', last
@@ -46,6 +47,7 @@ def main():
     print 'nbr_failures: ', nbr_failures
     print 'avrg_failure_time: ', avrg_failure_time
     print 'avrg_failure_rate: ', avrg_failure_rate
+    print 'failures_timestamp: ', failures_timestamps
 
     return
 
@@ -143,15 +145,16 @@ def get_uptime_percentage(total_time, uptime):
     uptime_percentage = float(uptime) / float(total_time) * 100
     return int(uptime_percentage)
 
-def get_number_failures(log_path):
-    """ Compute the number of failures and return it."""
-
+def get_failures_timestamp(log_path):
+    """ Put the timestamps of the failures found in the dataset into an 
+    array and return it."""
     machine_state = 2
-    nbr_failures = 0
+    failures_timestamp = []
 
     with open(log_path,'r') as log_f:
         for val in log_f:
             state = get_state(val)
+            time = get_time(val)
 
             if machine_state == 1:
                 if state == 0:
@@ -162,9 +165,9 @@ def get_number_failures(log_path):
                 if state == 0:
                     pass
                 else:
+                    failures_timestamp.append(time)
                     machine_state = 3
             elif machine_state == 3:
-                nbr_failures += 1
                 if state == 0:
                     machine_state = 2
                 else:
@@ -172,8 +175,13 @@ def get_number_failures(log_path):
             else:
                 print "state transition is not allowed."
 
-        if machine_state == 3:
-            nbr_failures += 1
+
+    return failures_timestamp
+
+def get_number_failures(log_path):
+    """ Compute the number of failures and return it."""
+
+    nbr_failures = len(get_failures_timestamp(log_path))
 
     return nbr_failures
 
