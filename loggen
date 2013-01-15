@@ -42,6 +42,7 @@ def main():
     failures_timestamps = get_failures_timestamp(args.log)
     hours_failures = get_hours_failures(failures_timestamps)
     days_failures = get_days_failures(failures_timestamps)
+    down_timestamps = get_downtime_timestamp(args.log)
 
     print 'first: ', first
     print 'last: ', last
@@ -55,8 +56,10 @@ def main():
     print 'failures_timestamp: ', failures_timestamps
     print 'hours_failures: ', hours_failures
     print 'days_failures: ', days_failures
+    print 'down_timestamps: ', down_timestamps
 
-    make_histogram(hours_failures, days_failures)
+    make_histogram(failures_timestamps)
+    make_downtime_histogram(down_timestamps)
 
     return
 
@@ -148,6 +151,25 @@ def get_downtime(total_time, uptime):
     downtime = total_time - uptime
     return downtime
 
+def get_downtime_timestamp(log_path):
+    """ Return all the timestamp in the log for wich the system was down. """
+
+    down_timestamps = []
+
+    with open(log_path,'r') as log_f:
+        for val in log_f:
+            state = get_state(val)
+            time = get_time(val)
+
+            if state  != 0:
+                down_timestamps.append(time)
+            else:
+                pass
+
+
+    return down_timestamps
+
+
 def get_uptime_percentage(total_time, uptime):
     """ Compute the uptime percentage and returns it. Return unit is seconds."""
 
@@ -222,21 +244,59 @@ def get_avrg_failure_rate(total_time, nbr_failures):
     avrg_failure_rate = avrg_failure_per_seconds * 3600
     return avrg_failure_rate
 
-def make_histogram(hours, days):
+def make_histogram(failure_timestamps):
     """ Use the hours and days and generate a .png 2d histogram of the failures.
     Saves it in the current folder under the name failures.png"""
 
+    days = get_days_failures(failure_timestamps)
+    hours = get_hours_failures(failure_timestamps)
+
     H, xedges, yedges = np.histogram2d(days, hours ,bins=[range(8),range(25)])
+
+    plt.clf()
 
     plt.imshow(H, interpolation='nearest')
     plt.colorbar()
-    plt.title('failures frequency plot')
+    plt.title('failures occurence frequency plot')
     plt.xlabel('hours of day (0-23)')
     plt.xticks(range(24))
     plt.yticks(range(7),['mon','tue','wed','thu','fri','sat','sun'])
     plt.ylabel('day of week')
     plt.savefig('failures.png')
     return
+
+def make_downtime_histogram(downtime_timestamp):
+    """ Takes the downtime timestamps and generate a 2d frequency map of them
+    with the axis of the map beeing the hour during which it occured and the
+    day during which it occured. Map is saved in downtime.png """
+
+    filename = 'downtime.png'
+
+    hours = get_hours_failures(downtime_timestamp)
+    days = get_days_failures(downtime_timestamp)
+
+    days_bin = range(8)
+    hours_bin = range(25)
+
+    days_tick = range(7)
+    hours_tick = range(24)
+
+    day_labels = ['mon','tue','wed','thu','fri','sat','sun']
+
+    H, xedges, yedges = np.histogram2d(days, hours, bins=[days_bin, hours_bin])
+
+    plt.clf()
+
+    plt.imshow(H, interpolation='nearest')
+    plt.colorbar()
+    plt.title('downtime period frequency plot')
+    plt.xlabel('hours of day (0-23)')
+    plt.xticks(hours_tick)
+    plt.yticks(days_tick,day_labels)
+    plt.ylabel('day of week')
+    plt.savefig(filename)
+    return
+
 
 if __name__ == '__main__':
     main()
