@@ -32,45 +32,39 @@ def main():
             )
 
     args = parser.parse_args()
-    first, last = get_acquisition_period(args.log)
-    uptime = get_uptime(args.log)
-    total_time = get_total_time(args.log)
-    downtime = get_downtime(total_time, uptime)
-    uptime_percentage = get_uptime_percentage(total_time, uptime)
-    nbr_failures = get_number_failures(args.log)
-    avrg_failure_time = get_avrg_failure_time(downtime, nbr_failures)
-    avrg_failure_rate = get_avrg_failure_rate(total_time, nbr_failures)
-    failures_timestamps = get_failures_timestamp(args.log)
-    hours_failures = get_hours_failures(failures_timestamps)
-    days_failures = get_days_failures(failures_timestamps)
-    down_timestamps = get_downtime_timestamp(args.log)
 
     statistics = dict()
     statistics['first'], statistics['last'] = get_acquisition_period(args.log)
     statistics['uptime'] = get_uptime(args.log)
+    statistics['total_time'] = get_total_time(args.log)
+    statistics['downtime'] = get_downtime(
+            statistics['total_time'],
+            statistics['uptime'])
+    statistics['uptime_percentage'] = get_uptime_percentage(
+            statistics['total_time'],
+            statistics['uptime'])
+    statistics['nbr_failures'] = get_number_failures(args.log)
+    statistics['avrg_failure_time'] = get_avrg_failure_time(
+            statistics['downtime'],
+            statistics['nbr_failures'])
+    statistics['avrg_failure_rate'] = get_avrg_failure_rate(
+            statistics['total_time'],
+            statistics['nbr_failures'])
 
-    print 'first: ', first
-    print 'last: ', last
-    print 'uptime: ', uptime 
-    print 'total_time: ',total_time
-    print 'downtime: ', downtime
-    print 'uptime_percentage: ', uptime_percentage
-    print 'nbr_failures: ', nbr_failures
-    print 'avrg_failure_time: ', avrg_failure_time
-    print 'avrg_failure_rate: ', avrg_failure_rate
-    print 'failures_timestamp: ', failures_timestamps
-    print 'hours_failures: ', hours_failures
-    print 'days_failures: ', days_failures
-    print 'down_timestamps: ', down_timestamps
+    failures_timestamps = get_failures_timestamp(args.log)
+    down_timestamps = get_downtime_timestamp(args.log)
 
     make_histogram(failures_timestamps)
     make_downtime_histogram(down_timestamps)
+
+    generate_report(args.template, statistics)
 
     return
 
 def get_acquisition_period(log_path):
     """Get the acquisition period (start date and last date) from the log file
     and return a tuple of the form (start_date,last_date)."""
+
 
     start_date = None
     last_date = None
