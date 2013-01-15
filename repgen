@@ -172,6 +172,9 @@ def get_downtime_timestamp(log_path):
 def get_uptime_percentage(total_time, uptime):
     """ Compute the uptime percentage and returns it. Return unit is seconds."""
 
+    if total_time == 0:
+        return 0
+
     uptime_percentage = float(uptime) / float(total_time) * 100
     return int(uptime_percentage)
 
@@ -232,12 +235,18 @@ def get_number_failures(log_path):
 def get_avrg_failure_time(downtime,nbr_failures):
     """Computes the average lenght of a failure."""
 
+    if nbr_failures == 0:
+        return 0
+
     avrg_failure_time = float(downtime) / float(nbr_failures)
     return int(avrg_failure_time)
 
 def get_avrg_failure_rate(total_time, nbr_failures):
     """Computes the average failure rate and returns it. Result unit is
     failure per hour."""
+
+    if total_time == 0:
+        return 0
 
     avrg_failure_per_seconds = float(nbr_failures) / float(total_time)
     avrg_failure_rate = avrg_failure_per_seconds * 3600
@@ -308,9 +317,6 @@ def generate_report(template_path,statistics):
     f.write(content)
     f.close()
     return
-
-
-
 
 if __name__ == '__main__':
     main()
