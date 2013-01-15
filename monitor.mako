@@ -19,7 +19,7 @@
             <div>Total downtime: ${downtime} </div>
             <div>Uptime percentage: ${uptime_percentage} % </div>
             <div>Number of failures: ${nbr_failures} </div>
-            <div>Average failure length: ${avrg_failure_time </div>
+            <div>Average failure length: ${avrg_failure_time} </div>
             <div>Average failure rate (failures per hour): ${avrg_failure_rate} </div>
         </p>
 
