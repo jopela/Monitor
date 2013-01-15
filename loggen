@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from time import ctime
 from datetime import datetime
+from mako.template import Template
 
 def main():
     """Entry point for loggen."""
@@ -43,6 +44,10 @@ def main():
     hours_failures = get_hours_failures(failures_timestamps)
     days_failures = get_days_failures(failures_timestamps)
     down_timestamps = get_downtime_timestamp(args.log)
+
+    statistics = dict()
+    statistics['first'], statistics['last'] = get_acquisition_period(args.log)
+    statistics['uptime'] = get_uptime(args.log)
 
     print 'first: ', first
     print 'last: ', last
@@ -296,6 +301,21 @@ def make_downtime_histogram(downtime_timestamp):
     plt.ylabel('day of week')
     plt.savefig(filename)
     return
+
+def generate_report(template_path,statistics):
+    """Generate the report from the statistics and saves it as an html file."""
+
+    report_filename = 'monitor.html'
+    template = Template(filename=template_path)
+
+    content = template.render(**statistics)
+
+    f = open(report_filename, 'w+')
+    f.write(content)
+    f.close()
+    return
+
+
 
 
 if __name__ == '__main__':
