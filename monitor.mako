@@ -22,9 +22,6 @@
             <div> uptime percentage: ${uptime_percentage}% </div>
             <div> longest uptime: ${longest_uptime} </div>
             <div> longest downtime: ${longest_downtime} </div>
-            <div> mean time between failure: ${mtbf} </div>
-            <div> mean time to recovery: ${mttr} </div>
-            <div> mean uptime: ${mean_uptime} </div>
         </p>
     </body>
 </html>
